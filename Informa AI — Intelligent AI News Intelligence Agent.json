@@ -1,0 +1,220 @@
+{
+  "name": "Informa AI — Intelligent AI News Intelligence Agent",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "triggerAtHour": 7
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.4,
+      "position": [
+        0,
+        0
+      ],
+      "id": "6e981f6d-ebe5-4d85-9e34-e9aac64cd233",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "94c1a919-7748-4f42-90ff-addb9c92f797",
+              "name": "topic",
+              "value": "Artificial Intelligence",
+              "type": "string"
+            },
+            {
+              "id": "993457da-ef4e-4ca1-8730-01ee2ea79326",
+              "name": "language",
+              "value": "English",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        224,
+        0
+      ],
+      "id": "5915228a-b625-4d43-bf48-969aee958f10",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "url": "https://newsapi.org/v2/everything",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "q",
+              "value": "Artificial Intelligence"
+            },
+            {
+              "name": "language",
+              "value": "en"
+            },
+            {
+              "name": "sortBy",
+              "value": "publishedAt"
+            },
+            {
+              "name": "apiKey",
+              "value": "2dead9a48d4e4d9495e50defeb8bcc95"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        448,
+        0
+      ],
+      "id": "92bb2467-dc42-415b-a4fb-69d4633483f5",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "You are an AI news summarizer.\n\nAnalyze the news articles provided by the previous node.\n\nSelect the most relevant and recent Artificial Intelligence news.\n\nFor each important article:\n- Provide the headline\n- Give a short 2–3 sentence summary\n- Explain why the news matters\n\nKeep the final response clear, concise, and easy to read.\n\nDo not invent or add information that is not present in the provided articles.",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        672,
+        0
+      ],
+      "id": "ee8c4cbe-f14e-4d47-b481-71a2af7b4651",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1.1,
+      "position": [
+        688,
+        208
+      ],
+      "id": "726f4c28-5461-470d-954b-8861148d873c",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "YfHNZtmfaU5wAlms",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "fromEmail": "mformaryam777@gmail.com",
+        "toEmail": "mformaryam777@gmail.com",
+        "subject": "Daily AI News Summary",
+        "html": "=Good morning!\n\nHere is your latest Artificial Intelligence news summary:\n\n{{ $json.output }}\n\nRegards,\nAI News Automation",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [
+        992,
+        0
+      ],
+      "id": "16500bc7-a060-43e6-88a4-917a30682717",
+      "name": "Send an Email",
+      "webhookId": "a3691060-157e-42b6-ad60-ba790699c3b8",
+      "credentials": {
+        "smtp": {
+          "id": "Z5qx4mLHmY8rF61o",
+          "name": "SMTP account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Send an Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "timeSavedMode": "fixed",
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false
+  },
+  "versionId": "c37a7b9d-82f2-4f86-a1c9-906c31eb3ac9",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "0e9f539ba49bc43b96ae84f0705131f1cbb556719c127213bff5199d99ed81c5"
+  },
+  "nodeGroups": [],
+  "id": "FcxUrxIMcoecLSJL",
+  "tags": []
+}
